@@ -88,10 +88,8 @@
   </div>
 
 <script>
-// ================= FINAL PRODUCTION SCRIPT (SAFE DOM LOAD) =================
-
-window.addEventListener('DOMContentLoaded', () => {
-  // Elements
+document.addEventListener('DOMContentLoaded', function () {
+  /* ================= ELEMENTS ================= */
   const openPdf = document.getElementById('openPdf');
   const closePdf = document.getElementById('closePdf');
   const pdfModal = document.getElementById('pdfModal');
@@ -99,96 +97,89 @@ window.addEventListener('DOMContentLoaded', () => {
   const ratingValue = document.getElementById('ratingValue');
   const downloadCount = document.getElementById('downloadCount');
   const adBanner = document.getElementById('adBanner');
-  const pdfFrame = document.getElementById('pdfFrame');
   const cover = document.getElementById('bookCover');
 
-  // ASIN FROM URL (?filepdf=B0XXXXXXX)
+  /* ================= PARAM ================= */
   const params = new URLSearchParams(window.location.search);
   const ASIN = params.get('filepdf') || 'B0XXXXXXX';
 
-  // COVER
-  cover.src = `https://images-na.ssl-images-amazon.com/images/P/${ASIN}.01.LZZZZZZZ.jpg`;
-  cover.onerror = () => cover.src = 'https://dummyimage.com/400x600/111/fff&text=Book+Cover';
+  /* ================= COVER ================= */
+  cover.src = 'images/' + ASIN + '.jpg';
+  cover.onerror = function () {
+    cover.src = 'images/placeholder.jpg';
+  };
 
-  // PDF (LAZY LOAD — only load on click)
-  const PDF_BASE = 'https://cdn.yoursite.com/pdfs'; // CHANGE
-  const pdfUrl = `${PDF_BASE}/${ASIN}.pdf`;
-  let pdfLoaded = false;
+  /* ================= PDF DIRECT LINK ================= */
+  const pdfUrl = 'pdfs/' + ASIN + '.pdf'; // DIRECT PDF FILE
 
-  // TITLE
-  bookTitle.innerText = `PDF Download (${ASIN})`;
+  /* ================= TITLE ================= */
+  bookTitle.textContent = 'PDF Download (' + ASIN + ')';
 
-  // RANDOM RATING + DOWNLOADS (always positive)
-  ratingValue.innerText = (Math.random() * (4.9 - 4.6) + 4.6).toFixed(1);
-  downloadCount.innerText = (Math.floor(Math.random() * 1200) + 100).toLocaleString();
+  /* ================= STATS ================= */
+  ratingValue.textContent = (Math.random() * 0.3 + 4.6).toFixed(1);
+  downloadCount.textContent = (Math.floor(Math.random() * 1200) + 100).toLocaleString();
 
-  // REVIEWS
+  /* ================= REVIEWS ================= */
   const reviews = [
     'Very actionable and easy to understand.',
     'High quality content, worth reading.',
     'Clear explanations and practical tips.'
   ];
-  document.querySelectorAll('.review-text').forEach((el, i) => {
-    el.innerText = `“${reviews[i]}”`;
+
+  const reviewEls = document.querySelectorAll('.review');
+  const reviewTexts = document.querySelectorAll('.review-text');
+
+  reviewTexts.forEach(function (el, i) {
+    el.textContent = '“' + reviews[i] + '”';
   });
 
-  // REVIEW ROTATION
   let r = 0;
-  setInterval(() => {
-    const els = document.querySelectorAll('.review');
-    els[r].classList.add('hidden');
-    r = (r + 1) % els.length;
-    els[r].classList.remove('hidden');
+  reviewEls.forEach(function (el, i) {
+    el.style.display = i === 0 ? 'block' : 'none';
+  });
+
+  setInterval(function () {
+    reviewEls[r].style.display = 'none';
+    r = (r + 1) % reviewEls.length;
+    reviewEls[r].style.display = 'block';
   }, 4000);
 
-  // MODAL HANDLERS
-  // MODAL HANDLERS + LAZY PDF LOAD
-  openPdf.addEventListener('click', () => {
-    pdfModal.classList.remove('hidden');
-    if (!pdfLoaded) {
-      pdfFrame.src = pdfUrl + '#toolbar=0';
-      pdfLoaded = true;
-    }
+  /* ================= DOWNLOAD HANDLER ================= */
+  openPdf.addEventListener('click', function () {
+    window.open(pdfUrl, '_blank', 'noopener,noreferrer');
   });
 
-  closePdf.addEventListener('click', () => pdfModal.classList.add('hidden'));
-  closePdf.addEventListener('click', () => pdfModal.classList.add('hidden'));
+  /* ================= OPTIONAL MODAL CLOSE ================= */
+  if (closePdf && pdfModal) {
+    closePdf.addEventListener('click', function () {
+      pdfModal.style.display = 'none';
+    });
+  }
 
-  // ADS (RESPONSIVE + REFRESH)
+  /* ================= ADS ================= */
   function refreshAd() {
     const mobile = window.innerWidth < 500;
     adBanner.style.width = mobile ? '320px' : '480px';
     adBanner.style.height = mobile ? '50px' : '60px';
-    adBanner.innerText = mobile ? 'Ad 320x50' : 'Ad 480x60';
+    adBanner.textContent = mobile ? 'Ad 320x50' : 'Ad 480x60';
   }
-  refreshAd();
-  setInterval(refreshAd, 15000);
-  window.addEventListener('resize', refreshAd);
 
-  // SOFT PROTECTION
-  document.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && ['s', 'p'].includes(e.key.toLowerCase())) {
-      e.preventDefault();
-    }
+  refreshAd();
+  window.addEventListener('resize', refreshAd);
+  setInterval(refreshAd, 15000);
+
+  /* ================= BASIC PROTECTION ================= */
+  document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
   });
 
-  // HISTATS
-  var _Hasync = _Hasync || [];
-  _Hasync.push(['Histats.start', '1,XXXXXXX,4,0,0,0,00010000']); // CHANGE ID
-  _Hasync.push(['Histats.track_hits', '']);
-
-  (function () {
-    var hs = document.createElement('script');
-    hs.async = true;
-    hs.src = '//s10.histats.com/js15_as.js';
-    (document.body || document.head).appendChild(hs);
-  })();
-
-  openPdf.addEventListener('click', () => {
-    _Hasync.push(['Histats.track_event', 'PDF', 'Open', ASIN]);
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'p')) {
+      e.preventDefault();
+    }
   });
 });
 </script>
 </body>
 </html>
+
