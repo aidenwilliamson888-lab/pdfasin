@@ -268,6 +268,66 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 <script>
+(function () {
+  'use strict';
+
+  /* Disable right click */
+  document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+  });
+
+  /* Block keyboard shortcuts */
+  document.addEventListener('keydown', function (e) {
+
+    const key = e.key.toLowerCase();
+
+    /* Ctrl-based shortcuts */
+    if (e.ctrlKey && (
+        key === 'u' ||   // View source
+        key === 'i' ||   // DevTools
+        key === 's' ||   // Save
+        key === 'p'      // Print
+    )) {
+      block(e);
+    }
+
+    /* Ctrl + Shift shortcuts */
+    if (e.ctrlKey && e.shiftKey && (
+        key === 'i' ||   // DevTools
+        key === 'c' ||   // Inspect
+        key === 'j'      // Console
+    )) {
+      block(e);
+    }
+
+    /* F12 */
+    if (e.key === 'F12') {
+      block(e);
+    }
+  });
+
+  function block(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  }
+
+  /* DevTools detection */
+  setInterval(function () {
+    const start = performance.now();
+    debugger;
+    const end = performance.now();
+
+    if (end - start > 100) {
+      document.body.innerHTML = '';
+      alert('Developer tools are disabled on this page.');
+      location.reload();
+    }
+  }, 1000);
+
+})();
+</script>
+<script>
 window._Hasync = window._Hasync || [];
 _Hasync.push(['Histats.start', '1,5003413,4,0,0,0,00010000']); // ← YOUR HISTATS ID
 _Hasync.push(['Histats.track_hits', '']);
@@ -281,6 +341,7 @@ _Hasync.push(['Histats.track_hits', '']);
 </script>
 </body>
 </html>
+
 
 
 
