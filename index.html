@@ -97,6 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const adBanner = document.getElementById('adBanner');
   const cover = document.getElementById('bookCover');
   const reviewContainer = document.getElementById('reviewSlider');
+  const reviewEl = reviewContainer.querySelector('.review');
 
   /* ================= PARAM ================= */
   const params = new URLSearchParams(window.location.search);
@@ -143,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return Math.floor(Math.random() * 7) + 1;
   }
 
-  function generateReview() {
+  function buildReview() {
     return `
       <strong>${randomItem(names)}</strong>
       <span style="font-size:11px;color:#6b7280;"> · ${randomDaysAgo()} days ago</span><br>
@@ -153,57 +154,34 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
   }
 
-  /* ================= BUILD ROLLING STRUCTURE ================= */
+  /* ================= INITIAL REVIEW ================= */
+  reviewEl.innerHTML = buildReview();
+
+  /* ================= ROLLING EFFECT ================= */
   reviewContainer.style.overflow = 'hidden';
-  reviewContainer.style.position = 'relative';
 
-  const inner = document.createElement('div');
-  inner.style.willChange = 'transform';
-  inner.style.transition = 'transform 0.6s ease';
+  reviewEl.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
 
-  reviewContainer.appendChild(inner);
-
-  const VISIBLE = 3;
-  const items = [];
-
-  for (let i = 0; i < VISIBLE + 1; i++) {
-    const item = document.createElement('div');
-    item.className = 'review bg-gray-50 p-4 rounded-xl mb-3';
-    item.innerHTML = generateReview();
-    inner.appendChild(item);
-    items.push(item);
-  }
-
-  let index = 0;
-  const itemHeight = items[0].offsetHeight;
-
-  /* ================= ROLL LOOP ================= */
   setInterval(() => {
-    index++;
-    inner.style.transform = `translateY(-${index * itemHeight}px)`;
+    // Roll out
+    reviewEl.style.transform = 'translateY(-20px)';
+    reviewEl.style.opacity = '0';
 
-    // After animation ends
     setTimeout(() => {
-      const first = items.shift();
-      inner.removeChild(first);
+      // Replace content
+      reviewEl.innerHTML = buildReview();
 
-      // Create a brand new review
-      const newItem = document.createElement('div');
-      newItem.className = 'review bg-gray-50 p-4 rounded-xl mb-3';
-      newItem.innerHTML = generateReview();
+      // Reset below
+      reviewEl.style.transition = 'none';
+      reviewEl.style.transform = 'translateY(20px)';
+      reviewEl.style.opacity = '0';
+      void reviewEl.offsetWidth; // reflow
 
-      inner.appendChild(newItem);
-      items.push(newItem);
-
-      // Reset position without flicker
-      inner.style.transition = 'none';
-      inner.style.transform = 'translateY(0)';
-      void inner.offsetWidth;
-      inner.style.transition = 'transform 0.6s ease';
-
-      index = 0;
-    }, 650);
-
+      // Roll in
+      reviewEl.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+      reviewEl.style.transform = 'translateY(0)';
+      reviewEl.style.opacity = '1';
+    }, 500);
   }, 3500);
 
   /* ================= DOWNLOAD ================= */
@@ -233,8 +211,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 </script>
+
 </body>
 </html>
+
 
 
 
