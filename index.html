@@ -211,70 +211,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 </script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-  const btn = document.getElementById('readerViewBtn');
-  if (!btn) return;
-
-  let readerOn = false;
-
-  btn.addEventListener('click', () => {
-    readerOn = !readerOn;
-    document.body.classList.toggle('reader-view', readerOn);
-    btn.textContent = readerOn ? '❌ Exit Reader View' : '📖 Reader View';
-  });
-
-  /* ================= READER VIEW STYLES ================= */
-  const style = document.createElement('style');
-  style.textContent = `
-    .reader-view {
-      background: #fdfdfd !important;
-    }
-
-    .reader-view main {
-      max-width: 720px !important;
-      box-shadow: none !important;
-      padding: 32px !important;
-    }
-
-    .reader-view img {
-      max-width: 200px !important;
-      margin: 0 auto 20px !important;
-      display: block;
-    }
-
-    .reader-view button,
-    .reader-view #adBanner {
-      display: none !important;
-    }
-
-    .reader-view p,
-    .reader-view .review {
-      font-size: 17px !important;
-      line-height: 1.7 !important;
-      color: #111 !important;
-    }
-
-    .reader-view h1 {
-      font-size: 26px !important;
-      margin-bottom: 16px !important;
-    }
-
-    .reader-view .review {
-      background: none !important;
-      border-left: 3px solid #e5e7eb;
-      padding-left: 12px !important;
-    }
-  `;
-  document.head.appendChild(style);
-
-});
-</script>
-
-
 </body>
 </html>
+
 
 
 
