@@ -96,21 +96,35 @@ document.addEventListener('DOMContentLoaded', function () {
   const downloadCount = document.getElementById('downloadCount');
   const adBanner = document.getElementById('adBanner');
   const cover = document.getElementById('bookCover');
+  const reviewEls = document.querySelectorAll('.review');
+  const reviewTexts = document.querySelectorAll('.review-text');
 
   /* ================= PARAM ================= */
   const params = new URLSearchParams(window.location.search);
   const ASIN = params.get('filepdf') || 'B0XXXXXXX';
 
-  /* ================= IMAGE FROM ASIN ================= */
+  /* ================= LAZY IMAGE ================= */
   const amazonImage = `https://images-na.ssl-images-amazon.com/images/P/${ASIN}.01.LZZZZZZZ.jpg`;
 
-  cover.src = amazonImage;
+  cover.loading = 'lazy';
+  cover.decoding = 'async';
 
-  cover.onerror = function () {
-    cover.src = 'images/placeholder.jpg'; // local fallback
-  };
+  const loadCover = () => cover.src = amazonImage;
+  cover.onerror = () => cover.src = 'images/placeholder.jpg';
 
-  /* ================= PDF DIRECT LINK ================= */
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        loadCover();
+        io.disconnect();
+      }
+    });
+    io.observe(cover);
+  } else {
+    loadCover();
+  }
+
+  /* ================= PDF ================= */
   const pdfUrl = '/filebookpdf.pdf';
 
   /* ================= TITLE ================= */
@@ -120,8 +134,83 @@ document.addEventListener('DOMContentLoaded', function () {
   ratingValue.textContent = (Math.random() * 0.3 + 4.6).toFixed(1);
   downloadCount.textContent = (Math.floor(Math.random() * 1200) + 100).toLocaleString();
 
+  /* ================= AUTO REVIEW NAMES ================= */
+  const names = [
+    'Alex M.', 'Daniel R.', 'Sarah K.', 'Emily T.', 'Michael B.',
+    'Jessica L.', 'Ryan P.', 'Olivia S.', 'Chris D.', 'Amanda W.'
+  ];
+
+  const reviews = [
+    'Very actionable and easy to understand.',
+    'High quality content, worth reading.',
+    'Clear explanations and practical tips.'
+  ];
+
+  // Shuffle helper
+  const shuffle = arr => arr.sort(() => Math.random() - 0.5);
+  shuffle(names);
+  shuffle(reviews);
+
+  /* ================= STARS ================= */
+  function animatedStars() {
+    return `
+      <span class="stars" style="
+        color:#f59e0b;
+        display:inline-block;
+        animation:pulse 1.5s infinite;
+      ">★★★★★</span>
+    `;
+  }
+
+  /* ================= INJECT REVIEWS ================= */
+  reviewTexts.forEach((el, i) => {
+    el.innerHTML = `
+      <strong>${names[i]}</strong><br>
+      “${reviews[i]}”<br>
+      ${animatedStars()}
+      <span style="font-size:11px;color:#16a34a;"> Verified Reader</span>
+    `;
+  });
+
+  /* ================= REVIEW ANIMATION ================= */
+  let r = 0;
+  reviewEls.forEach((el, i) => {
+    el.style.display = i === 0 ? 'block' : 'none';
+    el.style.opacity = i === 0 ? '1' : '0';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    el.style.transform = i === 0 ? 'translateY(0)' : 'translateY(12px)';
+  });
+
+  setInterval(() => {
+    reviewEls[r].style.opacity = '0';
+    reviewEls[r].style.transform = 'translateY(-12px)';
+
+    r = (r + 1) % reviewEls.length;
+
+    reviewEls[r].style.display = 'block';
+    reviewEls[r].style.opacity = '1';
+    reviewEls[r].style.transform = 'translateY(0)';
+
+    setTimeout(() => {
+      reviewEls.forEach((el, i) => {
+        if (i !== r) el.style.display = 'none';
+      });
+    }, 600);
+  }, 4000);
+
+  /* ================= STAR CSS (INLINE, NO CDN) ================= */
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.9; }
+    }
+  `;
+  document.head.appendChild(style);
+
   /* ================= DOWNLOAD ================= */
-  openPdf.addEventListener('click', function () {
+  openPdf.addEventListener('click', () => {
     window.open(pdfUrl, '_blank', 'noopener,noreferrer');
   });
 
@@ -148,6 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 </body>
 </html>
+
 
 
 
