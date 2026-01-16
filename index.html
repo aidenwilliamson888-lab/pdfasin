@@ -97,13 +97,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const adBanner = document.getElementById('adBanner');
   const cover = document.getElementById('bookCover');
   const reviewContainer = document.getElementById('reviewSlider');
-  const reviewEls = document.querySelectorAll('.review');
 
   /* ================= PARAM ================= */
   const params = new URLSearchParams(window.location.search);
   const ASIN = params.get('filepdf') || 'B0XXXXXXX';
 
-  /* ================= IMAGE FROM ASIN ================= */
+  /* ================= IMAGE ================= */
   const amazonImage = `https://images-na.ssl-images-amazon.com/images/P/${ASIN}.01.LZZZZZZZ.jpg`;
   cover.loading = 'lazy';
   cover.decoding = 'async';
@@ -121,7 +120,8 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ================= REVIEW DATA ================= */
   const names = [
     'Alex M.', 'Sarah K.', 'Daniel R.', 'Emily T.',
-    'Michael B.', 'Jessica L.', 'Ryan P.', 'Olivia S.'
+    'Michael B.', 'Jessica L.', 'Ryan P.', 'Olivia S.',
+    'Chris N.', 'Amanda W.'
   ];
 
   const reviews = [
@@ -130,7 +130,9 @@ document.addEventListener('DOMContentLoaded', function () {
     'Clear explanations and practical tips.',
     'Concise, helpful, and easy to follow.',
     'Great reference material, highly recommended.',
-    'Simple explanations and well structured.'
+    'Simple explanations and well structured.',
+    'Perfect for beginners and intermediates.',
+    'Straight to the point and informative.'
   ];
 
   function randomItem(arr) {
@@ -141,44 +143,67 @@ document.addEventListener('DOMContentLoaded', function () {
     return Math.floor(Math.random() * 7) + 1;
   }
 
-  /* ================= INITIALIZE REVIEWS ================= */
-  reviewEls.forEach(el => {
-    el.innerHTML = `
+  function generateReview() {
+    return `
       <strong>${randomItem(names)}</strong>
       <span style="font-size:11px;color:#6b7280;"> · ${randomDaysAgo()} days ago</span><br>
       “${randomItem(reviews)}”<br>
       <span style="color:#f59e0b;">★★★★★</span>
       <span style="font-size:11px;color:#16a34a;"> Verified Reader</span>
     `;
-  });
+  }
 
-  /* ================= ROLLING ANIMATION ================= */
-  let index = 0;
-  const itemHeight = reviewEls[0].offsetHeight;
-
+  /* ================= BUILD ROLLING STRUCTURE ================= */
   reviewContainer.style.overflow = 'hidden';
   reviewContainer.style.position = 'relative';
 
   const inner = document.createElement('div');
-  inner.style.transition = 'transform 0.6s ease';
   inner.style.willChange = 'transform';
+  inner.style.transition = 'transform 0.6s ease';
 
-  reviewEls.forEach(el => inner.appendChild(el));
   reviewContainer.appendChild(inner);
 
+  const VISIBLE = 3;
+  const items = [];
+
+  for (let i = 0; i < VISIBLE + 1; i++) {
+    const item = document.createElement('div');
+    item.className = 'review bg-gray-50 p-4 rounded-xl mb-3';
+    item.innerHTML = generateReview();
+    inner.appendChild(item);
+    items.push(item);
+  }
+
+  let index = 0;
+  const itemHeight = items[0].offsetHeight;
+
+  /* ================= ROLL LOOP ================= */
   setInterval(() => {
     index++;
     inner.style.transform = `translateY(-${index * itemHeight}px)`;
 
-    if (index >= reviewEls.length - 2) {
-      setTimeout(() => {
-        inner.style.transition = 'none';
-        index = 0;
-        inner.style.transform = 'translateY(0)';
-        void inner.offsetWidth; // reflow
-        inner.style.transition = 'transform 0.6s ease';
-      }, 700);
-    }
+    // After animation ends
+    setTimeout(() => {
+      const first = items.shift();
+      inner.removeChild(first);
+
+      // Create a brand new review
+      const newItem = document.createElement('div');
+      newItem.className = 'review bg-gray-50 p-4 rounded-xl mb-3';
+      newItem.innerHTML = generateReview();
+
+      inner.appendChild(newItem);
+      items.push(newItem);
+
+      // Reset position without flicker
+      inner.style.transition = 'none';
+      inner.style.transform = 'translateY(0)';
+      void inner.offsetWidth;
+      inner.style.transition = 'transform 0.6s ease';
+
+      index = 0;
+    }, 650);
+
   }, 3500);
 
   /* ================= DOWNLOAD ================= */
@@ -208,9 +233,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 </script>
-
 </body>
 </html>
+
 
 
 
