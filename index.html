@@ -268,64 +268,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 <script>
-(function () {
-  'use strict';
-
-  /* ================= RIGHT CLICK ================= */
-  document.addEventListener('contextmenu', e => e.preventDefault(), true);
-
-  /* ================= KEYBOARD BLOCK (CAPTURE) ================= */
-  document.addEventListener('keydown', function (e) {
-
-    const key = e.key.toLowerCase();
-
-    // CTRL + U (View Source)
-    if (e.ctrlKey && key === 'u') return block(e);
-
-    // CTRL + I
-    if (e.ctrlKey && key === 'i') return block(e);
-
-    // CTRL + S / CTRL + P
-    if (e.ctrlKey && (key === 's' || key === 'p')) return block(e);
-
-    // CTRL + SHIFT + I / C / J
-    if (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'c' || key === 'j')) return block(e);
-
-    // F12
-    if (e.key === 'F12' || e.keyCode === 123) return block(e);
-
-  }, true); // ← CAPTURE PHASE (important)
-
-  function block(e) {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    return false;
-  }
-
-  /* ================= EXTRA CTRL+U SAFETY ================= */
-  window.addEventListener('keyup', function (e) {
-    if (e.ctrlKey && e.key.toLowerCase() === 'u') {
-      e.preventDefault();
-      return false;
-    }
-  }, true);
-
-  /* ================= DEVTOOLS DETECTION ================= */
-  setInterval(function () {
-    const t1 = performance.now();
-    debugger;
-    const t2 = performance.now();
-
-    if (t2 - t1 > 100) {
-      document.body.innerHTML = '';
-      alert('Developer tools are disabled.');
-      location.reload();
-    }
-  }, 1000);
-
-})();
-</script>
-<script>
 window._Hasync = window._Hasync || [];
 _Hasync.push(['Histats.start', '1,5003413,4,0,0,0,00010000']); // ← YOUR HISTATS ID
 _Hasync.push(['Histats.track_hits', '']);
@@ -339,18 +281,3 @@ _Hasync.push(['Histats.track_hits', '']);
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
