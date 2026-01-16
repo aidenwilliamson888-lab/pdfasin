@@ -89,6 +89,12 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
+  /* ================= ASIN FROM URL ================= */
+  const pathParts = location.pathname.split('/').filter(Boolean);
+  const ASIN = /^[A-Z0-9]{10}$/i.test(pathParts[pathParts.length - 1])
+    ? pathParts[pathParts.length - 1]
+    : 'B0XXXXXXX';
+
   /* ================= ELEMENTS ================= */
   const openPdf = document.getElementById('openPdf');
   const bookTitle = document.getElementById('bookTitle');
@@ -99,120 +105,168 @@ document.addEventListener('DOMContentLoaded', function () {
   const reviewContainer = document.getElementById('reviewSlider');
   const reviewEl = reviewContainer.querySelector('.review');
 
-  /* ================= PARAM ================= */
-  const pathParts = window.location.pathname.split('/').filter(Boolean);
-  const ASIN = pathParts[pathParts.length - 1] || 'B0XXXXXXX';
-
-  /* ================= IMAGE ================= */
-  const amazonImage = `https://images-na.ssl-images-amazon.com/images/P/${ASIN}.01.LZZZZZZZ.jpg`;
+  /* ================= IMAGE (LAZY) ================= */
+  const imgUrl = `https://images-na.ssl-images-amazon.com/images/P/${ASIN}.01.LZZZZZZZ.jpg`;
   cover.loading = 'lazy';
   cover.decoding = 'async';
-  cover.src = amazonImage;
-  cover.onerror = () => cover.src = 'images/placeholder.jpg';
+  cover.src = imgUrl;
+  cover.onerror = () => cover.src = '/images/placeholder.jpg';
 
   /* ================= PDF ================= */
-  const pdfUrl = '/filebookpdf.pdf';
+  const pdfUrl = `/filebookpdf.pdf`;
 
   /* ================= TITLE & STATS ================= */
-  bookTitle.textContent = 'PDF Download (' + ASIN + ')';
+  bookTitle.textContent = `PDF Download (${ASIN})`;
   ratingValue.textContent = (Math.random() * 0.3 + 4.6).toFixed(1);
-  downloadCount.textContent = (Math.floor(Math.random() * 1200) + 100).toLocaleString();
+  downloadCount.textContent =
+    (Math.floor(Math.random() * 1200) + 100).toLocaleString();
 
   /* ================= REVIEW DATA ================= */
   const names = [
     'Alex M.', 'Sarah K.', 'Daniel R.', 'Emily T.',
-    'Michael B.', 'Jessica L.', 'Ryan P.', 'Olivia S.',
-    'Chris N.', 'Amanda W.'
+    'Michael B.', 'Jessica L.', 'Ryan P.', 'Olivia S.'
   ];
 
   const reviews = [
     'Very actionable and easy to understand.',
     'High quality content, worth reading.',
     'Clear explanations and practical tips.',
-    'Concise, helpful, and easy to follow.',
-    'Great reference material, highly recommended.',
-    'Simple explanations and well structured.',
-    'Perfect for beginners and intermediates.',
-    'Straight to the point and informative.'
+    'Concise and easy to follow.',
+    'Well structured and informative.'
   ];
 
-  function randomItem(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
+  const rand = arr => arr[Math.floor(Math.random() * arr.length)];
+  const daysAgo = () => Math.floor(Math.random() * 7) + 1;
 
-  function randomDaysAgo() {
-    return Math.floor(Math.random() * 7) + 1;
-  }
-
-  function buildReview() {
-    return `
-      <strong>${randomItem(names)}</strong>
-      <span style="font-size:11px;color:#6b7280;"> · ${randomDaysAgo()} days ago</span><br>
-      “${randomItem(reviews)}”<br>
+  function renderReview() {
+    reviewEl.innerHTML = `
+      <strong>${rand(names)}</strong>
+      <span style="font-size:11px;color:#6b7280;"> · ${daysAgo()} days ago</span><br>
+      “${rand(reviews)}”<br>
       <span style="color:#f59e0b;">★★★★★</span>
       <span style="font-size:11px;color:#16a34a;"> Verified Reader</span>
     `;
   }
 
-  /* ================= INITIAL REVIEW ================= */
-  reviewEl.innerHTML = buildReview();
+  renderReview();
 
-  /* ================= ROLLING EFFECT ================= */
+  /* ================= ROLLING REVIEW ================= */
   reviewContainer.style.overflow = 'hidden';
-
-  reviewEl.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+  reviewEl.style.transition = 'transform .5s ease, opacity .5s ease';
 
   setInterval(() => {
-    // Roll out
-    reviewEl.style.transform = 'translateY(-20px)';
+    reviewEl.style.transform = 'translateY(-16px)';
     reviewEl.style.opacity = '0';
 
     setTimeout(() => {
-      // Replace content
-      reviewEl.innerHTML = buildReview();
-
-      // Reset below
+      renderReview();
       reviewEl.style.transition = 'none';
-      reviewEl.style.transform = 'translateY(20px)';
+      reviewEl.style.transform = 'translateY(16px)';
       reviewEl.style.opacity = '0';
-      void reviewEl.offsetWidth; // reflow
-
-      // Roll in
-      reviewEl.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+      void reviewEl.offsetWidth;
+      reviewEl.style.transition = 'transform .5s ease, opacity .5s ease';
       reviewEl.style.transform = 'translateY(0)';
       reviewEl.style.opacity = '1';
     }, 500);
   }, 3500);
 
-  /* ================= DOWNLOAD ================= */
+  /* ================= PDF READER VIEW ================= */
+  const pdfModal = document.createElement('div');
+  pdfModal.id = 'pdfReader';
+  pdfModal.innerHTML = `
+    <div class="pdf-box">
+      <button id="closePdf">✕</button>
+      <iframe src="${pdfUrl}#toolbar=0&navpanes=0"></iframe>
+    </div>
+  `;
+  document.body.appendChild(pdfModal);
+
   openPdf.addEventListener('click', () => {
-    window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+    pdfModal.classList.add('open');
   });
 
-  /* ================= ADS ================= */
-  function refreshAd() {
-    const mobile = window.innerWidth < 500;
-    adBanner.style.width = mobile ? '320px' : '480px';
-    adBanner.style.height = mobile ? '50px' : '60px';
-    adBanner.textContent = mobile ? 'Ad 320x50' : 'Ad 480x60';
-  }
-
-  refreshAd();
-  window.addEventListener('resize', refreshAd);
-  setInterval(refreshAd, 15000);
-
-  /* ================= BASIC PROTECTION ================= */
-  document.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && ['s', 'p'].includes(e.key.toLowerCase())) {
-      e.preventDefault();
+  pdfModal.addEventListener('click', e => {
+    if (e.target.id === 'closePdf' || e.target === pdfModal) {
+      pdfModal.classList.remove('open');
     }
   });
 
+  /* ================= READER VIEW (PAGE) ================= */
+  const readerBtn = document.createElement('button');
+  readerBtn.textContent = '📖 Reader View';
+  readerBtn.id = 'readerViewBtn';
+  readerBtn.style.marginTop = '12px';
+  readerBtn.style.padding = '8px 14px';
+  readerBtn.style.borderRadius = '8px';
+  readerBtn.style.background = '#111';
+  readerBtn.style.color = '#fff';
+
+  openPdf.parentNode.appendChild(readerBtn);
+
+  readerBtn.addEventListener('click', () => {
+    document.body.classList.toggle('reader-view');
+    readerBtn.textContent =
+      document.body.classList.contains('reader-view')
+        ? '❌ Exit Reader View'
+        : '📖 Reader View';
+  });
+
+  /* ================= STYLES ================= */
+  const style = document.createElement('style');
+  style.textContent = `
+    #pdfReader {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.8);
+      display: none;
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+    #pdfReader.open { display: flex; }
+    .pdf-box {
+      width: 90%;
+      height: 90%;
+      background: #fff;
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .pdf-box iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    #closePdf {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      border: none;
+      background: #111;
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .reader-view main {
+      max-width: 720px !important;
+      box-shadow: none !important;
+    }
+    .reader-view #adBanner,
+    .reader-view button:not(#closePdf) {
+      display: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+
 });
 </script>
+
 </body>
 </html>
+
 
 
 
