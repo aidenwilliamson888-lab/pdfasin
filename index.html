@@ -96,6 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const downloadCount = document.getElementById('downloadCount');
   const adBanner = document.getElementById('adBanner');
   const cover = document.getElementById('bookCover');
+  const reviewContainer = document.getElementById('reviewSlider');
   const reviewEls = document.querySelectorAll('.review');
 
   /* ================= PARAM ================= */
@@ -128,37 +129,57 @@ document.addEventListener('DOMContentLoaded', function () {
     'High quality content, worth reading.',
     'Clear explanations and practical tips.',
     'Concise, helpful, and easy to follow.',
-    'Great reference material, highly recommended.'
+    'Great reference material, highly recommended.',
+    'Simple explanations and well structured.'
   ];
 
-  /* ================= HELPERS ================= */
-  function shuffle(arr) {
-    return arr.sort(() => Math.random() - 0.5);
+  function randomItem(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
   }
 
   function randomDaysAgo() {
-    return Math.floor(Math.random() * 7) + 1; // 1–7 days ago
+    return Math.floor(Math.random() * 7) + 1;
   }
 
-  shuffle(names);
-  shuffle(reviews);
-
-  /* ================= RENDER 3 REVIEWS ================= */
-  reviewEls.forEach((el, i) => {
-    if (i < 3) {
-      const days = randomDaysAgo();
-      el.style.display = 'block';
-      el.innerHTML = `
-        <strong>${names[i]}</strong>
-        <span style="font-size:11px;color:#6b7280;"> · ${days} days ago</span><br>
-        “${reviews[i]}”<br>
-        <span style="color:#f59e0b;">★★★★★</span>
-        <span style="font-size:11px;color:#16a34a;"> Verified Reader</span>
-      `;
-    } else {
-      el.style.display = 'none';
-    }
+  /* ================= INITIALIZE REVIEWS ================= */
+  reviewEls.forEach(el => {
+    el.innerHTML = `
+      <strong>${randomItem(names)}</strong>
+      <span style="font-size:11px;color:#6b7280;"> · ${randomDaysAgo()} days ago</span><br>
+      “${randomItem(reviews)}”<br>
+      <span style="color:#f59e0b;">★★★★★</span>
+      <span style="font-size:11px;color:#16a34a;"> Verified Reader</span>
+    `;
   });
+
+  /* ================= ROLLING ANIMATION ================= */
+  let index = 0;
+  const itemHeight = reviewEls[0].offsetHeight;
+
+  reviewContainer.style.overflow = 'hidden';
+  reviewContainer.style.position = 'relative';
+
+  const inner = document.createElement('div');
+  inner.style.transition = 'transform 0.6s ease';
+  inner.style.willChange = 'transform';
+
+  reviewEls.forEach(el => inner.appendChild(el));
+  reviewContainer.appendChild(inner);
+
+  setInterval(() => {
+    index++;
+    inner.style.transform = `translateY(-${index * itemHeight}px)`;
+
+    if (index >= reviewEls.length - 2) {
+      setTimeout(() => {
+        inner.style.transition = 'none';
+        index = 0;
+        inner.style.transform = 'translateY(0)';
+        void inner.offsetWidth; // reflow
+        inner.style.transition = 'transform 0.6s ease';
+      }, 700);
+    }
+  }, 3500);
 
   /* ================= DOWNLOAD ================= */
   openPdf.addEventListener('click', () => {
@@ -187,7 +208,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 </script>
+
 </body>
 </html>
+
 
 
