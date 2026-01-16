@@ -170,13 +170,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 500);
   }, 3500);
 
-  /* ================= PDF READER VIEW ================= */
+  /* ================= PDF READER (ORIGINAL VIEW) ================= */
   const pdfModal = document.createElement('div');
   pdfModal.id = 'pdfReader';
   pdfModal.innerHTML = `
-    <div class="pdf-box">
+    <div class="pdf-wrapper">
+      <div class="pdf-ad">
+        <div class="ad-480x60">Ad 480x60</div>
+      </div>
+      <iframe src="${pdfUrl}"></iframe>
       <button id="closePdf">✕</button>
-      <iframe src="${pdfUrl}#toolbar=0&navpanes=0"></iframe>
     </div>
   `;
   document.body.appendChild(pdfModal);
@@ -191,52 +194,57 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  /* ================= READER VIEW (PAGE) ================= */
-  const readerBtn = document.createElement('button');
-  readerBtn.textContent = '📖 Reader View';
-  readerBtn.id = 'readerViewBtn';
-  readerBtn.style.marginTop = '12px';
-  readerBtn.style.padding = '8px 14px';
-  readerBtn.style.borderRadius = '8px';
-  readerBtn.style.background = '#111';
-  readerBtn.style.color = '#fff';
-
-  openPdf.parentNode.appendChild(readerBtn);
-
-  readerBtn.addEventListener('click', () => {
-    document.body.classList.toggle('reader-view');
-    readerBtn.textContent =
-      document.body.classList.contains('reader-view')
-        ? '❌ Exit Reader View'
-        : '📖 Reader View';
-  });
-
   /* ================= STYLES ================= */
   const style = document.createElement('style');
   style.textContent = `
     #pdfReader {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.8);
+      background: rgba(0,0,0,.85);
       display: none;
       z-index: 999;
       align-items: center;
       justify-content: center;
     }
     #pdfReader.open { display: flex; }
-    .pdf-box {
-      width: 90%;
-      height: 90%;
+
+    .pdf-wrapper {
+      width: 92%;
+      height: 92%;
       background: #fff;
-      position: relative;
       border-radius: 12px;
       overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
     }
-    .pdf-box iframe {
+
+    .pdf-ad {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f3f4f6;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .ad-480x60 {
+      width: 480px;
+      height: 60px;
+      background: #d1d5db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .pdf-wrapper iframe {
+      flex: 1;
       width: 100%;
-      height: 100%;
       border: none;
     }
+
     #closePdf {
       position: absolute;
       top: 10px;
@@ -248,15 +256,7 @@ document.addEventListener('DOMContentLoaded', function () {
       height: 32px;
       border-radius: 50%;
       cursor: pointer;
-    }
-
-    .reader-view main {
-      max-width: 720px !important;
-      box-shadow: none !important;
-    }
-    .reader-view #adBanner,
-    .reader-view button:not(#closePdf) {
-      display: none !important;
+      z-index: 2;
     }
   `;
   document.head.appendChild(style);
@@ -266,6 +266,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 </body>
 </html>
+
 
 
 
