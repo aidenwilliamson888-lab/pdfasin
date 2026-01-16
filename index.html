@@ -91,8 +91,6 @@
 document.addEventListener('DOMContentLoaded', function () {
   /* ================= ELEMENTS ================= */
   const openPdf = document.getElementById('openPdf');
-  const closePdf = document.getElementById('closePdf');
-  const pdfModal = document.getElementById('pdfModal');
   const bookTitle = document.getElementById('bookTitle');
   const ratingValue = document.getElementById('ratingValue');
   const downloadCount = document.getElementById('downloadCount');
@@ -103,14 +101,17 @@ document.addEventListener('DOMContentLoaded', function () {
   const params = new URLSearchParams(window.location.search);
   const ASIN = params.get('filepdf') || 'B0XXXXXXX';
 
-  /* ================= COVER ================= */
-  cover.src = 'images/' + ASIN + '.jpg';
+  /* ================= IMAGE FROM ASIN ================= */
+  const amazonImage = `https://images-na.ssl-images-amazon.com/images/P/${ASIN}.01._SX600_.jpg`;
+
+  cover.src = amazonImage;
+
   cover.onerror = function () {
-    cover.src = 'images/placeholder.jpg';
+    cover.src = 'images/placeholder.jpg'; // local fallback
   };
 
   /* ================= PDF DIRECT LINK ================= */
-  const pdfUrl = '/filebookpdf.pdf'; // DIRECT PDF FILE
+  const pdfUrl = '/filebookpdf.pdf';
 
   /* ================= TITLE ================= */
   bookTitle.textContent = 'PDF Download (' + ASIN + ')';
@@ -119,42 +120,10 @@ document.addEventListener('DOMContentLoaded', function () {
   ratingValue.textContent = (Math.random() * 0.3 + 4.6).toFixed(1);
   downloadCount.textContent = (Math.floor(Math.random() * 1200) + 100).toLocaleString();
 
-  /* ================= REVIEWS ================= */
-  const reviews = [
-    'Very actionable and easy to understand.',
-    'High quality content, worth reading.',
-    'Clear explanations and practical tips.'
-  ];
-
-  const reviewEls = document.querySelectorAll('.review');
-  const reviewTexts = document.querySelectorAll('.review-text');
-
-  reviewTexts.forEach(function (el, i) {
-    el.textContent = '“' + reviews[i] + '”';
-  });
-
-  let r = 0;
-  reviewEls.forEach(function (el, i) {
-    el.style.display = i === 0 ? 'block' : 'none';
-  });
-
-  setInterval(function () {
-    reviewEls[r].style.display = 'none';
-    r = (r + 1) % reviewEls.length;
-    reviewEls[r].style.display = 'block';
-  }, 4000);
-
-  /* ================= DOWNLOAD HANDLER ================= */
+  /* ================= DOWNLOAD ================= */
   openPdf.addEventListener('click', function () {
     window.open(pdfUrl, '_blank', 'noopener,noreferrer');
   });
-
-  /* ================= OPTIONAL MODAL CLOSE ================= */
-  if (closePdf && pdfModal) {
-    closePdf.addEventListener('click', function () {
-      pdfModal.style.display = 'none';
-    });
-  }
 
   /* ================= ADS ================= */
   function refreshAd() {
@@ -169,12 +138,9 @@ document.addEventListener('DOMContentLoaded', function () {
   setInterval(refreshAd, 15000);
 
   /* ================= BASIC PROTECTION ================= */
-  document.addEventListener('contextmenu', function (e) {
-    e.preventDefault();
-  });
-
-  document.addEventListener('keydown', function (e) {
-    if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'p')) {
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && ['s', 'p'].includes(e.key.toLowerCase())) {
       e.preventDefault();
     }
   });
@@ -182,5 +148,6 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 </body>
 </html>
+
 
 
