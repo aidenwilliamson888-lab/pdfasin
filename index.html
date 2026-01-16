@@ -100,8 +100,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const reviewEl = reviewContainer.querySelector('.review');
 
   /* ================= PARAM ================= */
-  const params = new URLSearchParams(window.location.search);
-  const ASIN = params.get('filepdf') || 'B0XXXXXXX';
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  const ASIN = pathParts[pathParts.length - 1] || 'B0XXXXXXX';
 
   /* ================= IMAGE ================= */
   const amazonImage = `https://images-na.ssl-images-amazon.com/images/P/${ASIN}.01.LZZZZZZZ.jpg`;
@@ -214,6 +214,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 </body>
 </html>
+
 
 
 
