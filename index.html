@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Download Book PDF</title>
+  <title>Digital PDF Library</title>
   <meta name="description" content="Download the official PDF version of this book. Secure, instant access with verified reader reviews." />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -19,7 +19,7 @@
 
     <!-- Book Info -->
     <div class="flex flex-col justify-center">
-      <h1 id="bookTitle" class="text-2xl md:text-3xl font-bold mb-3">PDF Download</h1>
+      <h1 id="bookTitle" class="text-2xl md:text-3xl font-bold mb-3">Your Book is Ready !</h1>
 
       <p id="bookDescription" class="text-gray-600 mb-5 leading-relaxed">
         Download the official PDF version of this book. Instant access, high-quality content, and easy reading on any device.
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const pdfUrl = `/filebookpdf.pdf`;
 
   /* ================= TITLE & STATS ================= */
-  bookTitle.textContent = `PDF Download (${ASIN})`;
+  bookTitle.textContent = `Your Book is Ready !`;
   ratingValue.textContent = (Math.random() * 0.3 + 4.6).toFixed(1);
   downloadCount.textContent =
     (Math.floor(Math.random() * 1200) + 100).toLocaleString();
